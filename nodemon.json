@@ -1,12 +1,10 @@
 {
-  "watch": [
-    "src"
-  ],
-  "ext": "ts",
-  "ignore": [],
-  "exec": "tsc && homebridge -I -D",
-  "signal": "SIGTERM",
-  "env": {
-    "NODE_OPTIONS": "--trace-warnings"
-  }
+    "watch": ["./"],
+    "ignore": ["dist/*", "tests/*", ".homebridge/persist", ".homebridge/accessories"],
+    "exec": "tsc && homebridge -I -D -U .homebridge --plugin-path .",
+    "signal": "SIGTERM",
+    "env": {
+        "NODE_OPTIONS": "--trace-warnings"
+    },
+    "ext": "js ts json"
 }

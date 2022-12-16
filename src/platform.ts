@@ -1,116 +1,135 @@
-import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
+import type {
+    API,
+    Characteristic,
+    DynamicPlatformPlugin,
+    Logger,
+    PlatformAccessory,
+    PlatformConfig,
+    Service,
+} from 'homebridge'
 
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { ExamplePlatformAccessory } from './platformAccessory';
+import type { WithUUID } from 'hap-nodejs'
 
-/**
- * HomebridgePlatform
- * This class is the main constructor for your plugin, this is where you should
- * parse the user config and discover/register accessories with Homebridge.
- */
-export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
-  public readonly Service: typeof Service = this.api.hap.Service;
-  public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+import { PLATFORM_NAME, PLUGIN_NAME } from './settings'
+import { nobleDiscoverPeripherals } from './adapters/ble'
+import { type SensorData, ThermometerHandlers } from './thermometer'
+import { mathRoundDigits } from './std'
+import { Rssi } from './characteristic/Rssi'
 
-  // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory[] = [];
+export class BleThermobeaconPlatform implements DynamicPlatformPlugin {
+    public readonly Service: typeof Service = this.api.hap.Service
+    public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic
 
-  constructor(
-    public readonly log: Logger,
-    public readonly config: PlatformConfig,
-    public readonly api: API,
-  ) {
-    this.log.debug('Finished initializing platform:', this.config.name);
+    // this is used to track restored cached accessories
+    public readonly accessories: PlatformAccessory[] = []
 
-    // When this event is fired it means Homebridge has restored all cached accessories from disk.
-    // Dynamic Platform plugins should only register new accessories after this event was fired,
-    // in order to ensure they weren't added to homebridge already. This event can also be used
-    // to start discovery of new accessories.
-    this.api.on('didFinishLaunching', () => {
-      log.debug('Executed didFinishLaunching callback');
-      // run the method to discover / register your devices as accessories
-      this.discoverDevices();
-    });
-  }
-
-  /**
-   * This function is invoked when homebridge restores cached accessories from disk at startup.
-   * It should be used to setup event handlers for characteristics and update respective values.
-   */
-  configureAccessory(accessory: PlatformAccessory) {
-    this.log.info('Loading accessory from cache:', accessory.displayName);
-
-    // add the restored accessory to the accessories cache so we can track if it has already been registered
-    this.accessories.push(accessory);
-  }
-
-  /**
-   * This is an example method showing how to register discovered accessories.
-   * Accessories must only be registered once, previously created accessories
-   * must not be registered again to prevent "duplicate UUID" errors.
-   */
-  discoverDevices() {
-
-    // EXAMPLE ONLY
-    // A real plugin you would discover accessories from the local network, cloud services
-    // or a user-defined array in the platform config.
-    const exampleDevices = [
-      {
-        exampleUniqueId: 'ABCD',
-        exampleDisplayName: 'Bedroom',
-      },
-      {
-        exampleUniqueId: 'EFGH',
-        exampleDisplayName: 'Kitchen',
-      },
-    ];
-
-    // loop over the discovered devices and register each one if it has not already been registered
-    for (const device of exampleDevices) {
-
-      // generate a unique id for the accessory this should be generated from
-      // something globally unique, but constant, for example, the device serial
-      // number or MAC address
-      const uuid = this.api.hap.uuid.generate(device.exampleUniqueId);
-
-      // see if an accessory with the same uuid has already been registered and restored from
-      // the cached devices we stored in the `configureAccessory` method above
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-
-      if (existingAccessory) {
-        // the accessory already exists
-        this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-
-        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-        // existingAccessory.context.device = device;
-        // this.api.updatePlatformAccessories([existingAccessory]);
-
-        // create the accessory handler for the restored accessory
-        // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, existingAccessory);
-
-        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
-        // remove platform accessories when no longer present
-        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-      } else {
-        // the accessory does not yet exist, so we need to create it
-        this.log.info('Adding new accessory:', device.exampleDisplayName);
-
-        // create a new accessory
-        const accessory = new this.api.platformAccessory(device.exampleDisplayName, uuid);
-
-        // store a copy of the device object in the `accessory.context`
-        // the `context` property can be used to store any data about the accessory you may need
-        accessory.context.device = device;
-
-        // create the accessory handler for the newly create accessory
-        // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, accessory);
-
-        // link the accessory to your platform
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-      }
+    public constructor(public readonly log: Logger, public readonly config: PlatformConfig, public readonly api: API) {
+        this.log.debug('Finished initializing platform:', this.config.name)
+        this.api.on('didFinishLaunching', () => {
+            log.debug('Executed didFinishLaunching callback')
+            this.discoverDevices()
+        })
     }
-  }
+
+    public configureAccessory(accessory: PlatformAccessory): void {
+        this.log.info('Loading accessory from cache:', accessory.displayName)
+        this.accessories.push(accessory)
+    }
+
+    public discoverDevices(): void {
+        nobleDiscoverPeripherals(ThermometerHandlers, (sensorData) => {
+            const uuid = this.api.hap.uuid.generate(sensorData.sensorId)
+
+            const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid)
+            if (existingAccessory) {
+                this.applySensorData(sensorData, existingAccessory)
+            } else {
+                const accessory = new this.api.platformAccessory(sensorData.sensorId, uuid)
+                this.applySensorData(sensorData, accessory)
+                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory])
+                this.accessories.push(accessory)
+            }
+        })
+    }
+
+    private applySensorData(sensorData: SensorData, accessory: PlatformAccessory): void {
+        const accessoryInformation = this.ensureService(accessory, this.Service.AccessoryInformation)
+        accessoryInformation.setCharacteristic(this.Characteristic.Model, sensorData.modelName)
+
+        if (typeof sensorData.manufacturer !== 'undefined') {
+            accessoryInformation.setCharacteristic(this.Characteristic.Manufacturer, sensorData.manufacturer)
+        }
+
+        if (typeof sensorData.firmwareRevision !== 'undefined') {
+            accessoryInformation.setCharacteristic(this.Characteristic.FirmwareRevision, sensorData.firmwareRevision)
+        }
+
+        if (typeof sensorData.hardwareRevision !== 'undefined') {
+            accessoryInformation.setCharacteristic(this.Characteristic.HardwareRevision, sensorData.hardwareRevision)
+        }
+
+        if (typeof sensorData.softwareRevision !== 'undefined') {
+            accessoryInformation.setCharacteristic(this.Characteristic.SoftwareRevision, sensorData.softwareRevision)
+        }
+
+        if (typeof sensorData.serialNumber !== 'undefined') {
+            accessoryInformation.setCharacteristic(this.Characteristic.SerialNumber, sensorData.serialNumber)
+        }
+
+        const temperature = this.ensureService(accessory, this.Service.TemperatureSensor)
+        temperature.setPrimaryService()
+        temperature.setCharacteristic(
+            this.Characteristic.CurrentTemperature,
+            mathRoundDigits(sensorData.temperatureCelsius, 1),
+        )
+
+        const diagnostics = this.ensureService(accessory, this.Service.Diagnostics)
+        diagnostics.setCharacteristic(this.Characteristic.SupportedDiagnosticsSnapshot, JSON.stringify(sensorData))
+        diagnostics.setCharacteristic(Rssi, sensorData.rssi)
+        temperature.addLinkedService(diagnostics)
+
+        if (typeof sensorData.humidityPercentage !== 'undefined') {
+            const humidity = this.ensureService(accessory, this.Service.HumiditySensor)
+            humidity.setCharacteristic(
+                this.Characteristic.CurrentRelativeHumidity,
+                mathRoundDigits(sensorData.humidityPercentage, 0),
+            )
+            temperature.addLinkedService(humidity)
+        }
+
+        if (typeof sensorData.batteryPercentage !== 'undefined') {
+            const battery = this.ensureService(accessory, this.Service.Battery)
+            battery.setCharacteristic(
+                this.Characteristic.BatteryLevel,
+                mathRoundDigits(sensorData.batteryPercentage, 0),
+            )
+            battery.setCharacteristic(this.Characteristic.ChargingState, this.Characteristic.ChargingState.NOT_CHARGING)
+            battery.setCharacteristic(
+                this.Characteristic.StatusLowBattery,
+                sensorData.batteryPercentage > 10
+                    ? this.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
+                    : this.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW,
+            )
+            temperature.addLinkedService(battery)
+        }
+
+        if (typeof sensorData.buttonPressed !== 'undefined') {
+            const lockMechanism = this.ensureService(accessory, this.Service.LockMechanism)
+            lockMechanism.setCharacteristic(
+                this.Characteristic.LockTargetState,
+                this.Characteristic.LockTargetState.SECURED,
+            )
+            lockMechanism.setCharacteristic(
+                this.Characteristic.LockCurrentState,
+                sensorData.buttonPressed
+                    ? this.Characteristic.LockCurrentState.UNSECURED
+                    : this.Characteristic.LockCurrentState.SECURED,
+            )
+            temperature.addLinkedService(lockMechanism)
+        }
+    }
+
+    private ensureService<T extends WithUUID<typeof Service>>(accessory: PlatformAccessory, service: T): Service {
+        return accessory.getService(service) || accessory.addService(service as unknown as Service)
+    }
 }

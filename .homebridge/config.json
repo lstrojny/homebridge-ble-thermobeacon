@@ -1,0 +1,14 @@
+{
+    "accessories": [],
+    "bridge": {
+        "name": "BLE Thermobeacon Test Homebridge",
+        "pin": "121-11-121",
+        "username": "CC:22:3D:E3:CE:08"
+    },
+    "platforms": [
+        {
+            "platform": "BleThermoBeacon",
+            "debug": true
+        }
+    ]
+}

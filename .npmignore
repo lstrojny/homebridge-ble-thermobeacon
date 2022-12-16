@@ -132,3 +132,10 @@ web_modules/
 .yarn/unplugged
 .yarn/build-state.yml
 .pnp.*
+
+.homebridge/*
+.idea/*
+.eslintrc*
+prettier*
+
+release.sh
