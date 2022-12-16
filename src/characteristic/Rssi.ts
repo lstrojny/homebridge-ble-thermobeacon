@@ -1,6 +1,4 @@
 import { Formats, Perms } from 'homebridge'
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Characteristic } from 'hap-nodejs'
 
 export class Rssi extends Characteristic {
