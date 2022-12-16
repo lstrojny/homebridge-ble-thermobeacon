@@ -16,7 +16,7 @@ import { type SensorData, ThermometerHandlers } from './thermometer'
 import { mathRoundDigits } from './std'
 import { Rssi } from './characteristic/Rssi'
 
-export class BleThermobeaconPlatform implements DynamicPlatformPlugin {
+export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
     public readonly Service: typeof Service = this.api.hap.Service
     public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic
 

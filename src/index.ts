@@ -1,8 +1,8 @@
 import type { API } from 'homebridge'
 
 import { PLATFORM_NAME } from './settings'
-import { BleThermobeaconPlatform } from './platform'
+import { BleThermoBeaconPlatform } from './platform'
 
 export = (api: API): void => {
-    api.registerPlatform(PLATFORM_NAME, BleThermobeaconPlatform)
+    api.registerPlatform(PLATFORM_NAME, BleThermoBeaconPlatform)
 }
