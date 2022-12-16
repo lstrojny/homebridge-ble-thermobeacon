@@ -1,7 +1,7 @@
 {
     "watch": ["./"],
     "ignore": ["dist/*", "tests/*", ".homebridge/persist", ".homebridge/accessories"],
-    "exec": "tsc && homebridge -I -D -U .homebridge --plugin-path .",
+    "exec": "tsc && homebridge -I -D -U .homebridge",
     "signal": "SIGTERM",
     "env": {
         "NODE_OPTIONS": "--trace-warnings"
