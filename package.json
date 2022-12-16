@@ -6,7 +6,7 @@
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/lstrojny/homebridge-ble-thermobeacon.git"
+        "url": "git+https://github.com/lstrojny/homebridge-ble-thermobeacon.git"
     },
     "bugs": {
         "url": "https://github.com/lstrojny/homebridge-ble-thermobeacon/issues"
@@ -49,5 +49,8 @@
         "rimraf": "^3.0.2",
         "ts-node": "^10.3.0",
         "typescript": "^4.4.4"
-    }
+    },
+    "types": "./dist/src/index.d.ts",
+    "homepage": "https://github.com/lstrojny/homebridge-ble-thermobeacon#readme",
+    "author": "Lars Strojny <lars@strojny.net>"
 }
