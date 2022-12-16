@@ -29,7 +29,12 @@
         "release": "release-it --only-version"
     },
     "keywords": [
-        "homebridge-plugin"
+        "homebridge-plugin",
+        "ble",
+        "bluetooth",
+        "thermometer",
+        "oria",
+        "brifit"
     ],
     "dependencies": {
         "@abandonware/noble": "^1.9.2-1"
