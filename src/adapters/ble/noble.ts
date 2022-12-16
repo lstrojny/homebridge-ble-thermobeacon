@@ -71,11 +71,11 @@ async function discoverInformation(peripheral: Peripheral): Promise<Information>
         const information: Information = {}
         for (const characteristic of characteristics) {
             if (Object.keys(types).includes(characteristic.type) && characteristic.properties.includes('read')) {
-                await characteristic.subscribeAsync()
+                characteristic.subscribe()
                 try {
                     information[types[characteristic.type]] = (await characteristic.readAsync()).toString()
                 } finally {
-                    await characteristic.unsubscribeAsync()
+                    characteristic.unsubscribe()
                 }
             }
         }
