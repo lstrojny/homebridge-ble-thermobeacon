@@ -28,21 +28,22 @@ export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
     })
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    noble.on('discover', async (peripheral: Peripheral) => {
+    noble.on('discover', async (noblePeripheral: Peripheral) => {
         await noble.stopScanningAsync()
+
+        const peripheral = {
+            uuid: noblePeripheral.uuid,
+            rssi: noblePeripheral.rssi,
+            advertisement: {
+                localName: noblePeripheral.advertisement.localName,
+                manufacturerData: noblePeripheral.advertisement.manufacturerData,
+            },
+        }
 
         for (const handler of handlers) {
             if (handler.supported(peripheral)) {
                 handler
-                    .handlePeripheral({
-                        uuid: peripheral.uuid,
-                        rssi: peripheral.rssi,
-                        advertisement: {
-                            localName: peripheral.advertisement.localName,
-                            manufacturerData: peripheral.advertisement.manufacturerData,
-                        },
-                        information: await discoverInformation(peripheral),
-                    })
+                    .handlePeripheral({ ...peripheral, information: await discoverInformation(noblePeripheral) })
                     .then((sensorData) => {
                         if (sensorData !== null) {
                             onSensorData(sensorData)

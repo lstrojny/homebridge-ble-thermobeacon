@@ -1,0 +1,37 @@
+import type { SensorData, ThermometerHandler } from './index'
+import type { DiscoveredPeripheral, Peripheral } from '../adapters/ble'
+import type { Logger } from 'homebridge'
+
+export class ThermometerDebugger implements ThermometerHandler {
+    public constructor(private readonly handler: ThermometerHandler, private readonly logger: Logger) {}
+
+    public getName(): string {
+        return `Debugger(${this.handler.getName()})`
+    }
+
+    public supported(peripheral: DiscoveredPeripheral): boolean {
+        const supported = this.handler.supported(peripheral)
+
+        this.logger.debug(
+            `Handler ${this.handler.getName()} ${supported ? 'can' : 'cannot'} handle ${JSON.stringify(peripheral)}`,
+        )
+
+        return supported
+    }
+
+    public async handlePeripheral(peripheral: Peripheral): Promise<SensorData | null> {
+        const sensorData = await this.handler.handlePeripheral(peripheral)
+
+        this.logger.debug(
+            `Handler ${this.handler.getName()} returned sensor data ${JSON.stringify(sensorData)} for ${JSON.stringify(
+                peripheral,
+            )}`,
+        )
+
+        return sensorData
+    }
+}
+
+export function debugHandlers(handlers: ThermometerHandler[], logger: Logger): ThermometerHandler[] {
+    return handlers.map((handler) => new ThermometerDebugger(handler, logger))
+}

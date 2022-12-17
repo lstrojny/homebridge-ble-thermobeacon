@@ -4,6 +4,10 @@ import type { DiscoveredPeripheral, Peripheral } from '../adapters/ble'
 export class BrifitThermometerHandler implements ThermometerHandler {
     static readonly LOCAL_NAME = 'ThermoBeacon'
 
+    public getName(): string {
+        return 'BrifitThermometerHandler'
+    }
+
     public supported(peripheral: DiscoveredPeripheral): boolean {
         return peripheral.advertisement.localName === BrifitThermometerHandler.LOCAL_NAME
     }

@@ -7,12 +7,10 @@ import type {
     PlatformConfig,
     Service,
 } from 'homebridge'
-
 import type { WithUUID } from 'hap-nodejs'
-
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings'
 import { nobleDiscoverPeripherals } from './adapters/ble'
-import { type SensorData, ThermometerHandlers } from './thermometer'
+import { type SensorData, createHandlers, debugHandlers } from './thermometer'
 import { mathRoundDigits } from './std'
 import { Rssi } from './characteristic/Rssi'
 
@@ -20,7 +18,6 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
     public readonly Service: typeof Service = this.api.hap.Service
     public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic
 
-    // this is used to track restored cached accessories
     public readonly accessories: PlatformAccessory[] = []
 
     public constructor(public readonly log: Logger, public readonly config: PlatformConfig, public readonly api: API) {
@@ -37,7 +34,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
     }
 
     public discoverDevices(): void {
-        nobleDiscoverPeripherals(ThermometerHandlers, (sensorData) => {
+        nobleDiscoverPeripherals(debugHandlers(createHandlers(), this.log), (sensorData) => {
             const uuid = this.api.hap.uuid.generate(sensorData.sensorId)
 
             const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid)

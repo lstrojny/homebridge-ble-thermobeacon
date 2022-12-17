@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { nobleDiscoverPeripherals } from '../src/adapters/ble'
-import { ThermometerHandlers } from '../src/thermometer'
+import { createHandlers } from '../src/thermometer'
 
-nobleDiscoverPeripherals(ThermometerHandlers, (sensorData) => {
+nobleDiscoverPeripherals(createHandlers(), (sensorData) => {
     console.log(sensorData)
 })

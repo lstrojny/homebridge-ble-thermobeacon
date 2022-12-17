@@ -17,6 +17,7 @@ export type SensorData = {
 }
 
 export interface ThermometerHandler {
+    getName(): string
     supported(peripheral: DiscoveredPeripheral): boolean
     handlePeripheral(peripheral: Peripheral): Promise<SensorData | null>
 }
