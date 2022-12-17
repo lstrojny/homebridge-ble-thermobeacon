@@ -11,7 +11,7 @@ import type { WithUUID } from 'hap-nodejs'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings'
 import { nobleDiscoverPeripherals } from './adapters/ble'
 import { type SensorData, createHandlers, debugHandlers } from './thermometer'
-import { mathRoundDigits } from './std'
+import { roundDigits } from './math'
 import { RssiCharacteristic } from './custom_characteristics'
 
 export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
@@ -77,7 +77,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
         temperature.setPrimaryService()
         temperature.setCharacteristic(
             this.Characteristic.CurrentTemperature,
-            mathRoundDigits(sensorData.temperatureCelsius, 1),
+            roundDigits(sensorData.temperatureCelsius, 1),
         )
 
         const diagnostics = this.ensureService(accessory, this.Service.Diagnostics)
@@ -89,17 +89,14 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
             const humidity = this.ensureService(accessory, this.Service.HumiditySensor)
             humidity.setCharacteristic(
                 this.Characteristic.CurrentRelativeHumidity,
-                mathRoundDigits(sensorData.humidityPercentage, 0),
+                roundDigits(sensorData.humidityPercentage, 0),
             )
             temperature.addLinkedService(humidity)
         }
 
         if (typeof sensorData.batteryPercentage !== 'undefined') {
             const battery = this.ensureService(accessory, this.Service.Battery)
-            battery.setCharacteristic(
-                this.Characteristic.BatteryLevel,
-                mathRoundDigits(sensorData.batteryPercentage, 0),
-            )
+            battery.setCharacteristic(this.Characteristic.BatteryLevel, roundDigits(sensorData.batteryPercentage, 0))
             battery.setCharacteristic(this.Characteristic.ChargingState, this.Characteristic.ChargingState.NOT_CHARGING)
             battery.setCharacteristic(
                 this.Characteristic.StatusLowBattery,
