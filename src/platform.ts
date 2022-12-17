@@ -12,7 +12,7 @@ import { PLATFORM_NAME, PLUGIN_NAME } from './settings'
 import { nobleDiscoverPeripherals } from './adapters/ble'
 import { type SensorData, createHandlers, debugHandlers } from './thermometer'
 import { mathRoundDigits } from './std'
-import { Rssi } from './characteristic/Rssi'
+import { RssiCharacteristic } from './custom_characteristics'
 
 export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
     public readonly Service: typeof Service = this.api.hap.Service
@@ -82,7 +82,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
 
         const diagnostics = this.ensureService(accessory, this.Service.Diagnostics)
         diagnostics.setCharacteristic(this.Characteristic.SupportedDiagnosticsSnapshot, JSON.stringify(sensorData))
-        diagnostics.setCharacteristic(Rssi, sensorData.rssi)
+        diagnostics.setCharacteristic(RssiCharacteristic, sensorData.rssi)
         temperature.addLinkedService(diagnostics)
 
         if (typeof sensorData.humidityPercentage !== 'undefined') {
