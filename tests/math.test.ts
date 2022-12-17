@@ -17,4 +17,8 @@ describe('Test math module', () => {
     test('Accepts alternative rounding function', () => {
         expect(roundDigits(10.126, 2, Math.floor)).toBe(10.12)
     })
+
+    test('Works with negative numbers as well', () => {
+        expect(roundDigits(-10.12, 1)).toBe(-10.1)
+    })
 })
