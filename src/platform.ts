@@ -10,7 +10,7 @@ import type {
 import type { WithUUID } from 'hap-nodejs'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings'
 import { nobleDiscoverPeripherals } from './adapters/ble'
-import { type SensorData, createHandlers, debugHandlers } from './thermometer'
+import { type SensorData, createHandlers, createParserDebugger, debugHandlers } from './thermometer'
 import { roundDigits } from './math'
 import { RssiCharacteristic } from './custom_characteristics'
 
@@ -34,19 +34,22 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
     }
 
     public discoverDevices(): void {
-        nobleDiscoverPeripherals(debugHandlers(createHandlers(), this.log), (sensorData) => {
-            const uuid = this.api.hap.uuid.generate(sensorData.sensorId)
+        nobleDiscoverPeripherals(
+            debugHandlers(createHandlers(createParserDebugger(this.log)), this.log),
+            (sensorData) => {
+                const uuid = this.api.hap.uuid.generate(sensorData.sensorId)
 
-            const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid)
-            if (existingAccessory) {
-                this.applySensorData(sensorData, existingAccessory)
-            } else {
-                const accessory = new this.api.platformAccessory(sensorData.sensorId, uuid)
-                this.applySensorData(sensorData, accessory)
-                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory])
-                this.accessories.push(accessory)
-            }
-        })
+                const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid)
+                if (existingAccessory) {
+                    this.applySensorData(sensorData, existingAccessory)
+                } else {
+                    const accessory = new this.api.platformAccessory(sensorData.sensorId, uuid)
+                    this.applySensorData(sensorData, accessory)
+                    this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory])
+                    this.accessories.push(accessory)
+                }
+            },
+        )
     }
 
     private applySensorData(sensorData: SensorData, accessory: PlatformAccessory): void {

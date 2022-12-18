@@ -1,12 +1,17 @@
 import type { SensorData, ThermometerHandler } from './index'
 import type { DiscoveredPeripheral, Peripheral } from '../adapters/ble'
 import type { Logger } from 'homebridge'
+import type { Parser, TemperatureData } from './api'
+
+export function debugHandlers(handlers: ThermometerHandler[], logger: Logger): ThermometerHandler[] {
+    return handlers.map((handler) => new ThermometerDebugger(handler, logger))
+}
 
 export class ThermometerDebugger implements ThermometerHandler {
     public constructor(private readonly handler: ThermometerHandler, private readonly logger: Logger) {}
 
     public getName(): string {
-        return `Debugger(${this.handler.getName()})`
+        return `HandlerDebugger(${this.handler.getName()})`
     }
 
     public supported(peripheral: DiscoveredPeripheral): boolean {
@@ -32,6 +37,20 @@ export class ThermometerDebugger implements ThermometerHandler {
     }
 }
 
-export function debugHandlers(handlers: ThermometerHandler[], logger: Logger): ThermometerHandler[] {
-    return handlers.map((handler) => new ThermometerDebugger(handler, logger))
+export function createParserDebugger(logger: Logger): (createParser: () => Parser) => () => Parser {
+    return (createParser: () => Parser) => () => new ParserDebugger(createParser(), logger)
+}
+
+export class ParserDebugger implements Parser {
+    constructor(private readonly parser: Parser, private readonly logger: Logger) {}
+
+    public getName(): string {
+        return `ParserDebugger(${this.parser.getName()})`
+    }
+
+    public parse(msg: Buffer): TemperatureData | null {
+        const temperatureData = this.parser.parse(msg)
+        this.logger.debug(`${this.parser.getName()} returned ${JSON.stringify(temperatureData)} for ${msg.toString('hex')}`)
+        return temperatureData
+    }
 }
