@@ -49,6 +49,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
                     this.accessories.push(accessory)
                 }
             },
+            (error) => this.log.error('Error during BLE discovery %p', error),
         )
     }
 

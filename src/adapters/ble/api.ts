@@ -2,7 +2,8 @@ import type { SensorData, ThermometerHandler } from '../../thermometer'
 
 export type BlePeripheralsDiscovery = (
     handlers: ThermometerHandler[],
-    notifier: (sensorData: SensorData) => void,
+    sensorDataHandler: (sensorData: SensorData) => void,
+    errorHandler: (error: Error) => void,
 ) => void
 
 export type Advertisement = {
