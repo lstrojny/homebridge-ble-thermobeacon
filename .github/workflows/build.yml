@@ -19,7 +19,7 @@ jobs:
           - { node-version: 16.x, lint: true, tests: true }
           - { node-version: 17.x, lint: true, tests: true }
           - { node-version: 18.x, lint: true, tests: true }
-          - { node-version: 19.x, lint: false, tests: true }
+          - { node-version: 19.x, lint: true, tests: true }
 
     name: nodejs ${{ matrix.node-version }} (${{ matrix.lint && 'lint → ' || '' }}${{ matrix.tests && 'test → ' || '' }}build)
 
@@ -32,7 +32,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Update node-gyp
-        run: npm install node-gyp@latest
+        run: npm install node-gyp@latest -g
 
       - name: Cache node modules
         id: cache-npm
