@@ -32,7 +32,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Update node-gyp
-        run: npm install node-gyp@latest -g
+        run: npm explore npm/node_modules/@npmcli/run-script -g -- npm_config_global=false npm install node-gyp@latest
 
       - name: Cache node modules
         id: cache-npm
