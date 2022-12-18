@@ -19,7 +19,7 @@ jobs:
           - { node-version: 16.x, lint: true, tests: true }
           - { node-version: 17.x, lint: true, tests: true }
           - { node-version: 18.x, lint: true, tests: true }
-          - { node-version: 19.x, lint: true, tests: true }
+          - { node-version: 19.x, lint: false, tests: true }
 
     name: nodejs ${{ matrix.node-version }} (${{ matrix.lint && 'lint → ' || '' }}${{ matrix.tests && 'test → ' || '' }}build)
 
