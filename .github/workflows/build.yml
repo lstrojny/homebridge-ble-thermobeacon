@@ -10,10 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { node-version: 10.x, lint: false, tests: false }
-          - { node-version: 11.x, lint: false, tests: false }
-          - { node-version: 12.x, lint: false, tests: false }
-          - { node-version: 13.x, lint: false, tests: false }
           - { node-version: 14.x, lint: true, tests: true }
           - { node-version: 15.x, lint: false, tests: true }
           - { node-version: 16.x, lint: true, tests: true }
@@ -30,9 +26,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Update node-gyp
-        run: npm install node-gyp@latest -g
 
       - name: Cache node modules
         id: cache-npm
