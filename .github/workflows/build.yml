@@ -31,8 +31,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Update npm
-        run: npm install --global npm
+      - name: Update node-gyp
+        run: npm install node-gyp@latest
 
       - name: Cache node modules
         id: cache-npm

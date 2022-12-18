@@ -20,11 +20,11 @@
         "homebridge-ble-thermobeacon-scan": "dist/bin/homebridge-ble-thermobeacon-scan.js"
     },
     "scripts": {
-        "lint": "ifNotCi() { test \"$CI\" && echo \"$2\" || echo \"$1\"; }; `npm bin`/tsc --noEmit && `npm bin`/prettier --ignore-path=.gitignore `ifNotCi --write \"--check --cache --cache-strategy content\"` '**/**.{ts,js,json}' && `npm bin`/eslint `ifNotCi --fix \"--cache --cache-strategy content\"` --ignore-path=.gitignore '**/**.{ts,js,json}'",
+        "lint": "ifNotCi() { test \"$CI\" && echo \"$2\" || echo \"$1\"; }; npx tsc --noEmit && npx prettier --ignore-path=.gitignore `ifNotCi --write \"--check --cache --cache-strategy content\"` '**/**.{ts,js,json}' && npx eslint `ifNotCi --fix \"--cache --cache-strategy content\"` --ignore-path=.gitignore '**/**.{ts,js,json}'",
         "start": "npm run build && npm run link && nodemon",
         "link": "npm install --no-save file:///$PWD/",
         "build": "rimraf ./dist .tsbuildinfo && tsc",
-        "test": "ifNotCi() { test \"$CI\" && echo \"$2\" || echo \"$1\"; }; `npm bin`/jest `ifNotCi --watchAll --collect-coverage`",
+        "test": "ifNotCi() { test \"$CI\" && echo \"$2\" || echo \"$1\"; }; npx jest `ifNotCi --watchAll --collect-coverage`",
         "prepublishOnly": "npm run lint && npm run build",
         "release": "release-it --only-version"
     },
