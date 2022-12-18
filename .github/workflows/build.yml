@@ -31,11 +31,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Update node-gyp
-        run: npm explore npm -g -- ls node_modules/
-
-      - name: Update node-gyp debug
-        run: npm explore npm -g -- ls node_modules/*
+      - name: Update npm
+        run: npm install --global npm
 
       - name: Cache node modules
         id: cache-npm
@@ -44,7 +41,7 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '**/package.json') }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '**/package.json') }}
 
       - name: Cache eslint
         id: cache-eslint
