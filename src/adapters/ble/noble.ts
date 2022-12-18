@@ -97,13 +97,10 @@ async function discoverInformation(peripheral: Peripheral): Promise<Information>
         }
     })(peripheral)
 
-    // Try again on error
-    promise.catch((e) => {
+    // Store the promise in the cache map and try again on error
+    return (discoveredInformation[peripheral.uuid] = promise.catch((e) => {
         delete discoveredInformation[peripheral.uuid]
 
         throw e
-    })
-
-    // Store the promise in the cache map
-    return (discoveredInformation[peripheral.uuid] = promise)
+    }))
 }
