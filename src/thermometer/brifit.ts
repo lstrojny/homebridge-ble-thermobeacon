@@ -1,5 +1,5 @@
 import type { Parser, SensorData, TemperatureData, ThermometerHandler } from './api'
-import type { DiscoveredPeripheral, Peripheral } from '../adapters/ble'
+import type { DiscoveredPeripheral, Information, Peripheral } from '../adapters/ble'
 
 export function createBrifitHandler(createParser: () => Parser): ThermometerHandler {
     return new BrifitThermometerHandler(createParser())
@@ -7,6 +7,11 @@ export function createBrifitHandler(createParser: () => Parser): ThermometerHand
 
 export function createBrifitParser(): Parser {
     return new BrifitParser()
+}
+
+type InformationValues = Information[keyof Information]
+function unscramble(value: InformationValues, defaultValue: string, ignore: InformationValues[]): string | undefined {
+    return ignore.includes(value) ? defaultValue : value
 }
 
 export class BrifitThermometerHandler implements ThermometerHandler {
@@ -34,33 +39,21 @@ export class BrifitThermometerHandler implements ThermometerHandler {
             return null
         }
 
+        const information = peripheral.information
+
         return {
             sensorId: peripheral.uuid,
             modelName: peripheral.advertisement.localName,
             rssi: peripheral.rssi,
 
-            // Accessory information delivers garbage, name equals key
-            manufacturer:
-                peripheral.information?.manufacturerName !== 'Manufacturer Name'
-                    ? peripheral.information?.manufacturerName
-                    : 'Brifit',
-            firmwareRevision:
-                peripheral.information?.firmwareRevision !== 'Firmware Revision'
-                    ? peripheral.information?.firmwareRevision
-                    : 'Unknown',
-            hardwareRevision:
-                peripheral.information?.hardwareRevision !== 'Hardware Revision'
-                    ? peripheral.information?.hardwareRevision
-                    : 'Unknown',
-            softwareRevision:
-                peripheral.information?.softwareRevision !== 'Software Revision'
-                    ? peripheral.information?.softwareRevision
-                    : 'Unknown',
-            serialNumber:
-                peripheral.information?.serialNumber !== 'Serial Number'
-                    ? peripheral.information?.softwareRevision
-                    : 'Unknown',
             ...temperatureData,
+
+            // Accessory information delivers garbage where the name equals key
+            manufacturer: unscramble(information?.manufacturerName, 'Brifit', ['Manufacturer Name', undefined]),
+            firmwareRevision: unscramble(information?.firmwareRevision, 'Unknown', ['Firmware Revision']),
+            hardwareRevision: unscramble(information?.hardwareRevision, 'Unknown', ['Hardware Revision']),
+            softwareRevision: unscramble(information?.softwareRevision, 'Unknown', ['Software Revision']),
+            serialNumber: unscramble(information?.serialNumber, 'Unknown', ['Serial Number']),
         }
     }
 }

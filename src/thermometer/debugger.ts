@@ -50,7 +50,9 @@ export class ParserDebugger implements Parser {
 
     public parse(msg: Buffer): TemperatureData | null {
         const temperatureData = this.parser.parse(msg)
-        this.logger.debug(`${this.parser.getName()} returned ${JSON.stringify(temperatureData)} for ${msg.toString('hex')}`)
+        this.logger.debug(
+            `${this.parser.getName()} returned ${JSON.stringify(temperatureData)} for ${msg.toString('hex')}`,
+        )
         return temperatureData
     }
 }

@@ -1,8 +1,20 @@
 import { describe, expect, test } from '@jest/globals'
 import { BrifitParser, BrifitThermometerHandler } from '../../src/thermometer/brifit'
+import type { Parser, TemperatureData } from '../../src/thermometer/api'
+import assert from 'assert'
 
 describe('Test Brifit handler', () => {
-    const brifitHandler = new BrifitThermometerHandler(new BrifitParser())
+    const brifitHandler = new BrifitThermometerHandler(
+        new (class implements Parser {
+            getName(): string {
+                return 'stub'
+            }
+            parse(msg: Buffer): TemperatureData | null {
+                assert(msg.length === 0)
+                return { temperatureCelsius: 22.05 }
+            }
+        })(),
+    )
     const RSSI = -70
     const UUID = 'abcdefg'
 
@@ -31,9 +43,86 @@ describe('Test Brifit handler', () => {
             await brifitHandler.handlePeripheral({
                 uuid: UUID,
                 rssi: RSSI,
-                advertisement: { localName: 'ThermoBeacon', manufacturerData: Buffer.from([]) },
+                advertisement: { localName: 'ThermoBeacon', manufacturerData: null },
             }),
         ).toBe(null)
+    })
+
+    test('Handle foobar’ed peripheral metadata', async () => {
+        expect(
+            await brifitHandler.handlePeripheral({
+                uuid: UUID,
+                rssi: RSSI,
+                advertisement: { localName: 'ThermoBeacon', manufacturerData: Buffer.from([]) },
+                information: {
+                    manufacturerName: 'Manufacturer Name', // that‘s one way to do it
+                    firmwareRevision: 'Firmware Revision', // yes, really
+                    hardwareRevision: 'Hardware Revision', // yup
+                    serialNumber: 'Serial Number', // still ...
+                    softwareRevision: 'Software Revision', // still ...
+                },
+            }),
+        ).toEqual({
+            firmwareRevision: 'Unknown',
+            hardwareRevision: 'Unknown',
+            manufacturer: 'Brifit',
+            modelName: 'ThermoBeacon',
+            rssi: -70,
+            sensorId: 'abcdefg',
+            serialNumber: 'Unknown',
+            softwareRevision: 'Unknown',
+            temperatureCelsius: 22.05,
+        })
+    })
+
+    test('Let’s pretend at some point we would have nice metadata', async () => {
+        expect(
+            await brifitHandler.handlePeripheral({
+                uuid: UUID,
+                rssi: RSSI,
+                advertisement: { localName: 'ThermoBeacon', manufacturerData: Buffer.from([]) },
+                information: {
+                    manufacturerName: 'The Real Deal',
+                    firmwareRevision: '2.0',
+                    hardwareRevision: '3.0',
+                    serialNumber: '123456',
+                    softwareRevision: '4.0',
+                },
+            }),
+        ).toEqual({
+            firmwareRevision: '2.0',
+            hardwareRevision: '3.0',
+            manufacturer: 'The Real Deal',
+            modelName: 'ThermoBeacon',
+            rssi: -70,
+            sensorId: 'abcdefg',
+            serialNumber: '123456',
+            softwareRevision: '4.0',
+            temperatureCelsius: 22.05,
+        })
+    })
+
+    test('Undefined manufacturer will be overridden', async () => {
+        expect(
+            await brifitHandler.handlePeripheral({
+                uuid: UUID,
+                rssi: RSSI,
+                advertisement: { localName: 'ThermoBeacon', manufacturerData: Buffer.from([]) },
+                information: {
+                    manufacturerName: undefined,
+                },
+            }),
+        ).toEqual({
+            firmwareRevision: undefined,
+            hardwareRevision: undefined,
+            manufacturer: 'Brifit',
+            modelName: 'ThermoBeacon',
+            rssi: -70,
+            sensorId: 'abcdefg',
+            serialNumber: undefined,
+            softwareRevision: undefined,
+            temperatureCelsius: 22.05,
+        })
     })
 })
 
