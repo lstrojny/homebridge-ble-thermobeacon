@@ -13,7 +13,7 @@ const types: Record<string, keyof Information> = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Type information are foobar’ed
-const noble = new Noble() as typeof Noble
+const noble = new Noble({}) as typeof Noble
 
 export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
     handlers: ThermometerHandler[],
