@@ -1,5 +1,4 @@
-import { Formats, Perms } from 'homebridge'
-import { Characteristic } from 'hap-nodejs'
+import { Characteristic, Formats, Perms } from 'hap-nodejs'
 
 export class RssiCharacteristic extends Characteristic {
     // UUIDv5(ns:DNS, _hap.strojny.net) -> 0ae9619f-b05b-5257-a5fc-b4547bea7396
