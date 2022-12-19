@@ -1,6 +1,7 @@
-import Noble, { type Peripheral } from '@abandonware/noble'
+import Noble, { type Peripheral, type ServicesAndCharacteristics } from '@abandonware/noble'
 import type { SensorData, ThermometerHandler } from '../../thermometer'
 import type { BlePeripheralsDiscovery, Information } from './api'
+import { DelayingQueue } from '../../work_queue/delaying_queue'
 
 export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
     handlers: ThermometerHandler[],
@@ -17,40 +18,42 @@ export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
                 return
             }
 
-            noble.startScanning([], true)
+            void queue.schedule(() => noble.startScanning([], true))
         })
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         noble.on('discover', (noblePeripheral: Peripheral) => {
-            noble.stopScanning(() => {
-                const peripheral = {
-                    uuid: noblePeripheral.uuid,
-                    rssi: noblePeripheral.rssi,
-                    advertisement: {
-                        localName: noblePeripheral.advertisement.localName,
-                        manufacturerData: noblePeripheral.advertisement.manufacturerData,
-                    },
-                }
-
-                for (const handler of handlers) {
-                    if (handler.supported(peripheral)) {
-                        discoverInformation(noblePeripheral)
-                            .then((information) => {
-                                handler
-                                    .handlePeripheral({ ...peripheral, information })
-                                    .then((sensorData) => {
-                                        if (sensorData !== null) {
-                                            sensorDataHandler(sensorData)
-                                        }
-                                    })
-                                    .catch(errorHandler)
-                            })
-                            .catch(errorHandler)
+            void queue.schedule(() =>
+                noble.stopScanning(() => {
+                    const peripheral = {
+                        uuid: noblePeripheral.uuid,
+                        rssi: noblePeripheral.rssi,
+                        advertisement: {
+                            localName: noblePeripheral.advertisement.localName,
+                            manufacturerData: noblePeripheral.advertisement.manufacturerData,
+                        },
                     }
-                }
 
-                noble.startScanning([], true)
-            })
+                    for (const handler of handlers) {
+                        if (handler.supported(peripheral)) {
+                            discoverInformation(noblePeripheral)
+                                .then((information) => {
+                                    handler
+                                        .handlePeripheral({ ...peripheral, information })
+                                        .then((sensorData) => {
+                                            if (sensorData !== null) {
+                                                sensorDataHandler(sensorData)
+                                            }
+                                        })
+                                        .catch(errorHandler)
+                                })
+                                .catch(errorHandler)
+                        }
+                    }
+
+                    void queue.schedule(() => noble.startScanning([], true))
+                }),
+            )
         })
     } catch (e) {
         errorHandler(e as Error)
@@ -68,32 +71,38 @@ const types: Record<string, keyof Information> = {
 
 const discoveredInformation: Record<string, Promise<Information>> = {}
 
+const queue = new DelayingQueue(process.platform === 'linux' ? 100 : 10)
+
 async function discoverInformation(peripheral: Peripheral): Promise<Information> {
     if (peripheral.uuid in discoveredInformation) {
         return discoveredInformation[peripheral.uuid]
     }
 
     const promise = (async function (peripheral: Peripheral): Promise<Information> {
-        await peripheral.connectAsync()
+        await queue.schedule(() => peripheral.connectAsync())
 
         try {
-            const { characteristics } = await peripheral.discoverSomeServicesAndCharacteristicsAsync(['180a'], [])
+            const { characteristics } = await queue.schedule<Promise<ServicesAndCharacteristics>>(() =>
+                peripheral.discoverSomeServicesAndCharacteristicsAsync(['180a'], []),
+            )
 
             const information: Information = {}
             for (const characteristic of characteristics) {
                 if (Object.keys(types).includes(characteristic.type) && characteristic.properties.includes('read')) {
-                    characteristic.subscribe()
+                    await queue.schedule(() => characteristic.subscribe())
                     try {
-                        information[types[characteristic.type]] = (await characteristic.readAsync()).toString()
+                        information[types[characteristic.type]] = (
+                            await queue.schedule<Promise<Buffer>>(() => characteristic.readAsync())
+                        ).toString()
                     } finally {
-                        characteristic.unsubscribe()
+                        await queue.schedule(() => characteristic.unsubscribe())
                     }
                 }
             }
 
             return information
         } finally {
-            await peripheral.disconnectAsync()
+            await queue.schedule(() => peripheral.disconnectAsync())
         }
     })(peripheral)
 
