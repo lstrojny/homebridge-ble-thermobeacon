@@ -6,8 +6,8 @@ import type {
     PlatformAccessory,
     PlatformConfig,
     Service,
+    WithUUID,
 } from 'homebridge'
-import type { WithUUID } from 'hap-nodejs'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings'
 import { nobleDiscoverPeripherals } from './adapters/ble'
 import { type SensorData, createHandlers, createParserDebugger, debugHandlers } from './thermometer'
