@@ -11,7 +11,7 @@ export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
     try {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore Type information are foobar’ed
-        const noble = new Noble({ extended: false }) as typeof Noble
+        const noble = (typeof Noble === 'function' ? new Noble({ extended: false }) : Noble) as typeof Noble
 
         noble.on('stateChange', (state: string) => {
             if (state !== 'poweredOn') {
