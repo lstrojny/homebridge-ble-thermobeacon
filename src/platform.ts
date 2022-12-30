@@ -101,7 +101,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
 
         const diagnostics = this.ensureService(accessory, this.Service.Diagnostics)
         diagnostics.setCharacteristic(this.Characteristic.SupportedDiagnosticsSnapshot, JSON.stringify(sensorData))
-        attachRssiCharacteristic(diagnostics, this.api)
+        attachRssiCharacteristic(diagnostics, this.api).setValue(roundDigits(sensorData.rssi, 0))
         temperature.addLinkedService(diagnostics)
 
         if (typeof sensorData.humidityPercentage !== 'undefined') {
