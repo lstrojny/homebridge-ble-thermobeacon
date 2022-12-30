@@ -1,5 +1,5 @@
 import type { SensorData, ThermometerHandler } from './index'
-import type { DiscoveredPeripheral, Peripheral } from '../adapters/ble'
+import type { Peripheral } from '../adapters/ble'
 import type { Logger } from 'homebridge'
 import type { Parser, TemperatureData } from './api'
 
@@ -14,7 +14,7 @@ export class ThermometerDebugger implements ThermometerHandler {
         return `HandlerDebugger(${this.handler.getName()})`
     }
 
-    public supported(peripheral: DiscoveredPeripheral): boolean {
+    public supported(peripheral: Peripheral): boolean {
         const supported = this.handler.supported(peripheral)
 
         this.logger.debug(

@@ -4,6 +4,34 @@
     "singular": true,
     "schema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+            "debug": {
+                "type": "boolean",
+                "default": false,
+                "title": "Debugging enabled"
+            },
+            "devices": {
+                "type": "array",
+                "title": "List of devices",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "required": ["address", "name"],
+                    "properties": {
+                        "address": {
+                            "type": "string",
+                            "title": "Address",
+                            "pattern": "^(([0-9a-fA-F]{8}-?)([0-9a-fA-F]{4}-?){3}([0-9a-fA-F]{12}-?)|([0-9a-fA-F]{2}:?){5}[0-9a-fA-F]{2})$",
+                            "description": "Bluetooth address of the thermometer. MAC address on Linux, UUID on Mac"
+                        },
+                        "name": {
+                            "type": "string",
+                            "title": "Name",
+                            "description": "Specify a name for the thermometer in Homebridge"
+                        }
+                    }
+                }
+            }
+        }
     }
 }

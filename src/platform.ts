@@ -13,18 +13,27 @@ import { nobleDiscoverPeripherals } from './adapters/ble'
 import { type SensorData, createHandlers, createParserDebugger, debugHandlers } from './thermometer'
 import { roundDigits } from './math'
 import { RssiCharacteristic } from './custom_characteristics'
+import { type Config, ConfigBoundary } from './boundaries'
 
 export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
     public readonly Service: typeof Service = this.api.hap.Service
     public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic
-
     public readonly accessories: PlatformAccessory[] = []
+    private readonly config: Config | null = null
 
-    public constructor(public readonly log: Logger, public readonly config: PlatformConfig, public readonly api: API) {
-        this.log.debug('Finished initializing platform:', this.config.name)
+    public constructor(public readonly log: Logger, readonly platformConfig: PlatformConfig, public readonly api: API) {
+        this.log.debug('Finished initializing platform:', platformConfig.name)
+
+        try {
+            this.config = ConfigBoundary.parse(platformConfig)
+        } catch (e) {
+            this.log.error('Could not parse config', e)
+        }
         this.api.on('didFinishLaunching', () => {
             log.debug('Executed didFinishLaunching callback')
-            this.discoverDevices()
+            if (this.config !== null) {
+                this.discoverDevices()
+            }
         })
     }
 
@@ -40,6 +49,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
                 const uuid = this.api.hap.uuid.generate(sensorData.sensorId)
 
                 const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid)
+
                 if (existingAccessory) {
                     this.applySensorData(sensorData, existingAccessory)
                 } else {
@@ -78,6 +88,11 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
         }
 
         const temperature = this.ensureService(accessory, this.Service.TemperatureSensor)
+
+        if (!temperature.getCharacteristic(this.Characteristic.ConfiguredName)) {
+            temperature.setCharacteristic(this.Characteristic.ConfiguredName, this.getName(sensorData))
+        }
+
         temperature.setPrimaryService()
         temperature.setCharacteristic(
             this.Characteristic.CurrentTemperature,
@@ -125,6 +140,10 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
             )
             temperature.addLinkedService(lockMechanism)
         }
+    }
+
+    private getName(sensorData: SensorData): string {
+        return this.config?.devices.find(({ address }) => address === sensorData.sensorId)?.name || sensorData.sensorId
     }
 
     private ensureService<T extends WithUUID<typeof Service>>(accessory: PlatformAccessory, service: T): Service {

@@ -1,5 +1,5 @@
 import type { Parser, SensorData, TemperatureData, ThermometerHandler } from './api'
-import type { DiscoveredPeripheral, Information, Peripheral } from '../adapters/ble'
+import type { Peripheral } from '../adapters/ble'
 
 export function createBrifitHandler(createParser: () => Parser): ThermometerHandler {
     return new BrifitThermometerHandler(createParser())
@@ -7,11 +7,6 @@ export function createBrifitHandler(createParser: () => Parser): ThermometerHand
 
 export function createBrifitParser(): Parser {
     return new BrifitParser()
-}
-
-type InformationValues = Information[keyof Information]
-function unscramble(value: InformationValues, defaultValue: string, ignore: InformationValues[]): string | undefined {
-    return ignore.includes(value) ? defaultValue : value
 }
 
 export class BrifitThermometerHandler implements ThermometerHandler {
@@ -23,12 +18,15 @@ export class BrifitThermometerHandler implements ThermometerHandler {
         return 'BrifitThermometerHandler'
     }
 
-    public supported(peripheral: DiscoveredPeripheral): boolean {
+    public supported(peripheral: Peripheral): boolean {
         return peripheral.advertisement.localName === BrifitThermometerHandler.LOCAL_NAME
     }
 
-    // eslint-disable-next-line  @typescript-eslint/require-await
-    public async handlePeripheral(peripheral: Peripheral): Promise<SensorData | null> {
+    public handlePeripheral(peripheral: Peripheral): Promise<SensorData | null> {
+        return Promise.resolve(this.handlePeripheralSync(peripheral))
+    }
+
+    private handlePeripheralSync(peripheral: Peripheral): SensorData | null {
         if (peripheral.advertisement.manufacturerData === null) {
             return null
         }
@@ -39,21 +37,16 @@ export class BrifitThermometerHandler implements ThermometerHandler {
             return null
         }
 
-        const information = peripheral.information
-
         return {
+            ...temperatureData,
             sensorId: peripheral.uuid,
             modelName: peripheral.advertisement.localName,
             rssi: peripheral.rssi,
-
-            ...temperatureData,
-
-            // Accessory information delivers garbage where the name equals key
-            manufacturer: unscramble(information?.manufacturerName, 'Brifit', ['Manufacturer Name', undefined]),
-            firmwareRevision: unscramble(information?.firmwareRevision, 'Unknown', ['Firmware Revision']),
-            hardwareRevision: unscramble(information?.hardwareRevision, 'Unknown', ['Hardware Revision']),
-            softwareRevision: unscramble(information?.softwareRevision, 'Unknown', ['Software Revision']),
-            serialNumber: unscramble(information?.serialNumber, 'Unknown', ['Serial Number']),
+            manufacturer: 'Brifit',
+            firmwareRevision: 'Unknown',
+            hardwareRevision: 'Unknown',
+            softwareRevision: 'Unknown',
+            serialNumber: 'Unknown',
         }
     }
 }

@@ -2,15 +2,12 @@
 import { nobleDiscoverPeripherals } from '../src/adapters/ble'
 import { createHandlers } from '../src/thermometer'
 
-const sensorsFound: string[] = []
-
+const deviceIds: Set<string> = new Set()
 nobleDiscoverPeripherals(
     createHandlers(),
     (sensorData) => {
-        if (!sensorsFound.includes(sensorData.sensorId)) {
-            sensorsFound.push(sensorData.sensorId)
-        }
-        console.log(`${sensorsFound.length} sensors found`)
+        deviceIds.add(sensorData.sensorId)
+        console.log('%d sensors detected', deviceIds.size)
         console.log(sensorData)
     },
     console.error,

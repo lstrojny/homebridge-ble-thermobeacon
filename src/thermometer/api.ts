@@ -1,4 +1,4 @@
-import type { DiscoveredPeripheral, Peripheral } from '../adapters/ble'
+import type { Peripheral } from '../adapters/ble'
 
 export type SensorData = {
     sensorId: string
@@ -21,7 +21,7 @@ export type TemperatureData = {
 
 export interface ThermometerHandler {
     getName(): string
-    supported(peripheral: DiscoveredPeripheral): boolean
+    supported(peripheral: Peripheral): boolean
     handlePeripheral(peripheral: Peripheral): Promise<SensorData | null>
 }
 

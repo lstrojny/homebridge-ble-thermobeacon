@@ -8,7 +8,13 @@
     "platforms": [
         {
             "platform": "BleThermoBeacon",
-            "debug": true
+            "debug": true,
+            "devices": [
+                {
+                    "address": "0781601ff71f331b04b8f6db2f9a18c9",
+                    "name": "Example device"
+                }
+            ]
         }
     ]
 }
