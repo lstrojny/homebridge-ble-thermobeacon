@@ -6,7 +6,7 @@ const RSSI_DISPLAY_NAME = 'RSSI'
 // UUIDv5(0ae9619f-b05b-5257-a5fc-b4547bea7396, RSSI) -> 752574c8-5c0d-56b5-b463-fcf61ae516e4
 const RSSI_UUID = '752574c8-5c0d-56b5-b463-fcf61ae516e4'
 
-export function attachRssiCharacteristic(target: Service, api: API): Characteristic {
+export function ensureRssiCharacteristic(target: Service, api: API): Characteristic {
     return (
         target.getCharacteristic(RSSI_DISPLAY_NAME) ||
         target.addCharacteristic(
