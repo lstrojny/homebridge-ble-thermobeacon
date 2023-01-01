@@ -6,10 +6,7 @@ import { throttle } from '../../std'
 function newNoble(module: {
     default: (new (args: Record<string, unknown>) => typeof Noble) | typeof Noble
 }): typeof Noble {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore Type information are foobar’ed
-    const noble = typeof module.default === 'function' ? new module.default({ extended: false }) : module.default
-    return noble
+    return typeof module.default === 'function' ? new module.default({ extended: false }) : module.default
 }
 
 export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
