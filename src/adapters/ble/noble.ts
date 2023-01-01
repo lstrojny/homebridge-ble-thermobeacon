@@ -14,8 +14,7 @@ export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
     import('@abandonware/noble')
         .then((module) => {
             try {
-                const noble = newNoble(module)
-                startDiscovery(noble, handlers, sensorDataHandler, errorHandler)
+                startDiscovery(newNoble(module), handlers, sensorDataHandler, errorHandler)
             } catch (e) {
                 errorHandler(e as Error)
             }
