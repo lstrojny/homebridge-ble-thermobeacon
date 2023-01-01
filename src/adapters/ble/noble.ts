@@ -6,10 +6,6 @@ import { throttle } from '../../std'
 type Noble = typeof _noble
 type Peripheral = _noble.Peripheral
 
-function newNoble(module: { default: (new (args: Record<string, unknown>) => Noble) | Noble }): Noble {
-    return typeof module.default === 'function' ? new module.default({ extended: false }) : module.default
-}
-
 export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
     handlers: ThermometerHandler[],
     sensorDataHandler: (sensorData: SensorData) => void,
@@ -25,6 +21,10 @@ export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
             }
         })
         .catch((e) => errorHandler(e as Error))
+}
+
+function newNoble(module: { default: (new (args: Record<string, unknown>) => Noble) | Noble }): Noble {
+    return typeof module.default === 'function' ? new module.default({ extended: false }) : module.default
 }
 
 function startDiscovery(
