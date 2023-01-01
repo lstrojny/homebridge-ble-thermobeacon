@@ -1,11 +1,12 @@
-import type Noble from '@abandonware/noble'
+import type _noble from '@abandonware/noble'
 import type { SensorData, ThermometerHandler } from '../../thermometer'
 import type { BlePeripheralsDiscovery } from './api'
 import { throttle } from '../../std'
 
-function newNoble(module: {
-    default: (new (args: Record<string, unknown>) => typeof Noble) | typeof Noble
-}): typeof Noble {
+type Noble = typeof _noble
+type Peripheral = _noble.Peripheral
+
+function newNoble(module: { default: (new (args: Record<string, unknown>) => Noble) | Noble }): Noble {
     return typeof module.default === 'function' ? new module.default({ extended: false }) : module.default
 }
 
@@ -18,23 +19,7 @@ export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
         .then((module) => {
             try {
                 const noble = newNoble(module)
-
-                noble.on('stateChange', (state: string) => {
-                    if (state !== 'poweredOn') {
-                        return
-                    }
-
-                    noble.startScanning([], true)
-                })
-
-                noble.on(
-                    'discover',
-                    throttle(
-                        3_000,
-                        handleDiscover.bind(null, handlers, sensorDataHandler, errorHandler),
-                        (peripheral) => peripheral.uuid,
-                    ),
-                )
+                startDiscovery(noble, handlers, sensorDataHandler, errorHandler)
             } catch (e) {
                 errorHandler(e as Error)
             }
@@ -42,11 +27,35 @@ export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
         .catch((e) => errorHandler(e as Error))
 }
 
+function startDiscovery(
+    noble: Noble,
+    handlers: ThermometerHandler[],
+    sensorDataHandler: (sensorData: SensorData) => void,
+    errorHandler: (error: Error) => void,
+) {
+    noble.on('stateChange', (state: string) => {
+        if (state !== 'poweredOn') {
+            return
+        }
+
+        noble.startScanning([], true)
+    })
+
+    noble.on(
+        'discover',
+        throttle(
+            3_000,
+            handleDiscover.bind(null, handlers, sensorDataHandler, errorHandler),
+            (peripheral) => peripheral.uuid,
+        ),
+    )
+}
+
 function handleDiscover(
     handlers: ThermometerHandler[],
     sensorDataHandler: (sensorData: SensorData) => void,
     errorHandler: (error: Error) => void,
-    noblePeripheral: Noble.Peripheral,
+    noblePeripheral: Peripheral,
 ) {
     const peripheral = {
         uuid: noblePeripheral.uuid,
