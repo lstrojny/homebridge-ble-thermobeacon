@@ -4,6 +4,7 @@
 </p>
 
 # Homebridge plugin for Brifit/ORIA thermometers
+[![CI](https://github.com/lstrojny/homebridge-ble-thermobeacon/actions/workflows/build.yml/badge.svg)](https://github.com/lstrojny/homebridge-ble-thermobeacon/actions/workflows/build.yml) [![npm version](https://badge.fury.io/js/homebridge-ble-thermobeacon.svg)](https://badge.fury.io/js/homebridge-ble-thermobeacon) ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/lstrojny/homebridge-ble-thermobeacon) ![npm](https://img.shields.io/npm/dw/homebridge-ble-thermobeacon)
 
 ## Installation
 
