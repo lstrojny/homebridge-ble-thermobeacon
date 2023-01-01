@@ -1,10 +1,10 @@
-import type _noble from '@abandonware/noble'
+import type NobleModule from '@abandonware/noble'
 import type { SensorData, ThermometerHandler } from '../../thermometer'
 import type { BlePeripheralsDiscovery } from './api'
 import { throttle } from '../../std'
 
-type Noble = typeof _noble
-type Peripheral = _noble.Peripheral
+type Noble = typeof NobleModule
+type Peripheral = NobleModule.Peripheral
 
 export const nobleDiscoverPeripherals: BlePeripheralsDiscovery = (
     handlers: ThermometerHandler[],
