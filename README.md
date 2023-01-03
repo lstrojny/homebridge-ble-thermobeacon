@@ -48,11 +48,12 @@ Enable the plugin in the homebridge `config.json`:
 
 
 ## Configuration
-On Linux, the `CAP_NET_RAW` capability is required for BLE to work.
+On Linux, the `CAP_NET_RAW` capability is required for BLE to work as a non-root user.
 
 ### Systemd
-If you are running homebridge with systemd, you need to add `CAP_NET_RAW` as an ambient capability. Either edit the
-`homebridge.service` file directly or place an override in `/etc/systemd/system/homebridge.service.d`.
+If you are running homebridge with systemd (and you really should), you need to add `CAP_NET_RAW` as an ambient
+capability. Either edit the `homebridge.service` file directly or (preferably) place an override in
+`/etc/systemd/system/homebridge.service.d`.
 
 Create the folder:
 
