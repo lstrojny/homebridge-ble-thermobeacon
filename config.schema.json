@@ -14,7 +14,7 @@
                 "type": "boolean",
                 "default": false,
                 "title": "Publish button press as lock",
-                "description": "Publish button pressed state as a lock. Can help identify the beacon"
+                "description": "Publish button pressed state as a lock. Pressed button is presented as unlocked, otherwise locked. Can help identify the beacon"
             },
             "devices": {
                 "type": "array",
@@ -38,7 +38,7 @@
                         "buttonAsLock": {
                             "type": "boolean",
                             "title": "Publish button press as lock",
-                            "description": "Publish button pressed state as a lock. Can help identify the beacon"
+                            "description": "Per device settings to publish button pressed state as a lock"
                         }
                     }
                 }

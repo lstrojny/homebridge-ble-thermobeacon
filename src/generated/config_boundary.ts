@@ -6,7 +6,9 @@ export const ConfigBoundary = z.object({
     debug: z.boolean().default(false),
     buttonAsLock: z
         .boolean()
-        .describe('Publish button pressed state as a lock. Can help identify the beacon')
+        .describe(
+            'Publish button pressed state as a lock. Pressed button is presented as unlocked, otherwise locked. Can help identify the beacon',
+        )
         .default(false),
     devices: z
         .array(
@@ -22,7 +24,7 @@ export const ConfigBoundary = z.object({
                 name: z.string().describe('Specify a name for the thermometer in Homebridge'),
                 buttonAsLock: z
                     .boolean()
-                    .describe('Publish button pressed state as a lock. Can help identify the beacon')
+                    .describe('Per device settings to publish button pressed state as a lock')
                     .optional(),
             }),
         )
