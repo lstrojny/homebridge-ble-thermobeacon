@@ -4,6 +4,10 @@ import { z } from 'zod'
 
 export const ConfigBoundary = z.object({
     debug: z.boolean().default(false),
+    buttonAsLock: z
+        .boolean()
+        .describe('Publish button pressed state as a lock. Can help identify the beacon')
+        .default(false),
     devices: z
         .array(
             z.object({
@@ -16,6 +20,10 @@ export const ConfigBoundary = z.object({
                     )
                     .describe('Bluetooth address of the thermometer. MAC address on Linux, UUID on Mac'),
                 name: z.string().describe('Specify a name for the thermometer in Homebridge'),
+                buttonAsLock: z
+                    .boolean()
+                    .describe('Publish button pressed state as a lock. Can help identify the beacon')
+                    .optional(),
             }),
         )
         .default([]),

@@ -24,6 +24,12 @@ Enable the plugin in the homebridge `config.json`:
       "debug": "<boolean>",
 
 
+      // Publish button press as lock
+      //
+      // Publish button pressed state as a lock. Can help identify the beacon
+      "buttonAsLock": "<boolean>",
+
+
       // List of devices
       [
         {
@@ -36,7 +42,13 @@ Enable the plugin in the homebridge `config.json`:
           // Name
           //
           // Specify a name for the thermometer in Homebridge
-          "name": "<string>"
+          "name": "<string>",
+
+
+          // Publish button press as lock
+          //
+          // Publish button pressed state as a lock. Can help identify the beacon
+          "buttonAsLock": "<boolean>"
         }
         //, { ... }
       ]

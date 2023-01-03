@@ -67,23 +67,23 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
         const accessoryInformation = this.ensureService(accessory, this.Service.AccessoryInformation)
         accessoryInformation.setCharacteristic(this.Characteristic.Model, sensorData.modelName)
 
-        if (typeof sensorData.manufacturer !== 'undefined') {
+        if (sensorData.manufacturer !== undefined) {
             accessoryInformation.setCharacteristic(this.Characteristic.Manufacturer, sensorData.manufacturer)
         }
 
-        if (typeof sensorData.firmwareRevision !== 'undefined') {
+        if (sensorData.firmwareRevision !== undefined) {
             accessoryInformation.setCharacteristic(this.Characteristic.FirmwareRevision, sensorData.firmwareRevision)
         }
 
-        if (typeof sensorData.hardwareRevision !== 'undefined') {
+        if (sensorData.hardwareRevision !== undefined) {
             accessoryInformation.setCharacteristic(this.Characteristic.HardwareRevision, sensorData.hardwareRevision)
         }
 
-        if (typeof sensorData.softwareRevision !== 'undefined') {
+        if (sensorData.softwareRevision !== undefined) {
             accessoryInformation.setCharacteristic(this.Characteristic.SoftwareRevision, sensorData.softwareRevision)
         }
 
-        if (typeof sensorData.serialNumber !== 'undefined') {
+        if (sensorData.serialNumber !== undefined) {
             accessoryInformation.setCharacteristic(this.Characteristic.SerialNumber, sensorData.serialNumber)
         }
 
@@ -104,7 +104,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
         ensureRssiCharacteristic(diagnostics, this.api).setValue(roundDigits(sensorData.rssi, 0))
         temperature.addLinkedService(diagnostics)
 
-        if (typeof sensorData.humidityPercentage !== 'undefined') {
+        if (sensorData.humidityPercentage !== undefined) {
             const humidity = this.ensureService(accessory, this.Service.HumiditySensor)
             humidity.setCharacteristic(
                 this.Characteristic.CurrentRelativeHumidity,
@@ -113,7 +113,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
             temperature.addLinkedService(humidity)
         }
 
-        if (typeof sensorData.batteryPercentage !== 'undefined') {
+        if (sensorData.batteryPercentage !== undefined) {
             const battery = this.ensureService(accessory, this.Service.Battery)
             battery.setCharacteristic(this.Characteristic.BatteryLevel, roundDigits(sensorData.batteryPercentage, 0))
             battery.setCharacteristic(this.Characteristic.ChargingState, this.Characteristic.ChargingState.NOT_CHARGING)
@@ -126,7 +126,7 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
             temperature.addLinkedService(battery)
         }
 
-        if (typeof sensorData.buttonPressed !== 'undefined') {
+        if (sensorData.buttonPressed !== undefined && this.shouldPublishLock(sensorData)) {
             const lockMechanism = this.ensureService(accessory, this.Service.LockMechanism)
             lockMechanism.setCharacteristic(
                 this.Characteristic.LockTargetState,
@@ -139,11 +139,22 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
                     : this.Characteristic.LockCurrentState.SECURED,
             )
             temperature.addLinkedService(lockMechanism)
+        } else {
+            const lockMechanism = accessory.getService(this.Service.LockMechanism)
+            if (lockMechanism) {
+                accessory.removeService(lockMechanism)
+            }
         }
     }
 
-    private getName(sensorData: SensorData): string {
-        return this.config?.devices.find(({ address }) => address === sensorData.sensorId)?.name || sensorData.sensorId
+    private getName(sensor: Pick<SensorData, 'sensorId'>): string {
+        return this.config?.devices.find(({ address }) => address === sensor.sensorId)?.name || sensor.sensorId
+    }
+
+    private shouldPublishLock(sensor: Pick<SensorData, 'sensorId'>): boolean {
+        const config = this.config?.devices.find(({ address }) => address === sensor.sensorId)
+
+        return config?.buttonAsLock === undefined ? this.config?.buttonAsLock || false : config.buttonAsLock
     }
 
     private ensureService<T extends WithUUID<typeof Service>>(accessory: PlatformAccessory, service: T): Service {

@@ -10,6 +10,12 @@
                 "default": false,
                 "title": "Debugging enabled"
             },
+            "buttonAsLock": {
+                "type": "boolean",
+                "default": false,
+                "title": "Publish button press as lock",
+                "description": "Publish button pressed state as a lock. Can help identify the beacon"
+            },
             "devices": {
                 "type": "array",
                 "title": "List of devices",
@@ -28,6 +34,11 @@
                             "type": "string",
                             "title": "Name",
                             "description": "Specify a name for the thermometer in Homebridge"
+                        },
+                        "buttonAsLock": {
+                            "type": "boolean",
+                            "title": "Publish button press as lock",
+                            "description": "Publish button pressed state as a lock. Can help identify the beacon"
                         }
                     }
                 }
