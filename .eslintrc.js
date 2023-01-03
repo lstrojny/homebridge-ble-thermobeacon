@@ -1,7 +1,7 @@
 module.exports = {
     extends: ['eslint:recommended', 'plugin:import/recommended'],
     parser: '@typescript-eslint/parser',
-    plugins: ['@typescript-eslint', 'prettier', 'import'],
+    plugins: ['@typescript-eslint', 'prettier', 'import', 'unicorn'],
     root: true,
     rules: {
         'prettier/prettier': 'warn',
@@ -21,6 +21,7 @@ module.exports = {
         'import/no-useless-path-segments': 'error',
         'import/no-named-as-default': 0,
         'no-duplicate-imports': 'error',
+        'unicorn/no-typeof-undefined': 'error',
     },
     overrides: [
         {

@@ -9,6 +9,7 @@
         {
             "platform": "BleThermoBeacon",
             "debug": true,
+            "buttonAsLock": true,
             "devices": [
                 {
                     "address": "0781601ff71f331b04b8f6db2f9a18c9",

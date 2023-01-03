@@ -24,6 +24,13 @@ Enable the plugin in the homebridge `config.json`:
       "debug": "<boolean>",
 
 
+      // Publish all button press states as locks
+      //
+      // Pressed button is presented as unlocked, otherwise locked. Can help identify
+      // the beacon
+      "buttonAsLock": "<boolean>",
+
+
       // List of devices
       [
         {
@@ -36,7 +43,13 @@ Enable the plugin in the homebridge `config.json`:
           // Name
           //
           // Specify a name for the thermometer in Homebridge
-          "name": "<string>"
+          "name": "<string>",
+
+
+          // Publish button press state as lock
+          //
+          // Per device settings to publish button pressed state as a lock
+          "buttonAsLock": "<boolean>"
         }
         //, { ... }
       ]
