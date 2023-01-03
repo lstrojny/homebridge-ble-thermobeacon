@@ -24,10 +24,10 @@ Enable the plugin in the homebridge `config.json`:
       "debug": "<boolean>",
 
 
-      // Publish button press as lock
+      // Publish all button press states as locks
       //
-      // Publish button pressed state as a lock. Pressed button is presented as
-      // unlocked, otherwise locked. Can help identify the beacon
+      // Pressed button is presented as unlocked, otherwise locked. Can help identify
+      // the beacon
       "buttonAsLock": "<boolean>",
 
 
@@ -46,7 +46,7 @@ Enable the plugin in the homebridge `config.json`:
           "name": "<string>",
 
 
-          // Publish button press as lock
+          // Publish button press state as lock
           //
           // Per device settings to publish button pressed state as a lock
           "buttonAsLock": "<boolean>"

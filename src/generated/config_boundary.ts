@@ -6,9 +6,7 @@ export const ConfigBoundary = z.object({
     debug: z.boolean().default(false),
     buttonAsLock: z
         .boolean()
-        .describe(
-            'Publish button pressed state as a lock. Pressed button is presented as unlocked, otherwise locked. Can help identify the beacon',
-        )
+        .describe('Pressed button is presented as unlocked, otherwise locked. Can help identify the beacon')
         .default(false),
     devices: z
         .array(
