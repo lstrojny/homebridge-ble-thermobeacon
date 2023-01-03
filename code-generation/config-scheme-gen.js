@@ -57,6 +57,9 @@ function generateDocs(schema) {
                     if (definition.description) {
                         lines.push(`//\n// ${wordwrap(definition.description, 80 - indentation, '\n// ')}`)
                     }
+                    if (definition.default !== undefined) {
+                        lines.push(`//\n// Default: ${JSON.stringify(definition.default)}`)
+                    }
 
                     if (definition.type === 'array') {
                         lines.push('[')

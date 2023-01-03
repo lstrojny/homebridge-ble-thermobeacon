@@ -21,6 +21,8 @@ Enable the plugin in the homebridge `config.json`:
 
 
       // Debugging enabled
+      //
+      // Default: false
       "debug": "<boolean>",
 
 
@@ -28,10 +30,14 @@ Enable the plugin in the homebridge `config.json`:
       //
       // Pressed button is presented as unlocked, otherwise locked. Can help identify
       // the beacon
+      //
+      // Default: false
       "buttonAsLock": "<boolean>",
 
 
       // List of devices
+      //
+      // Default: []
       [
         {
           // Address
