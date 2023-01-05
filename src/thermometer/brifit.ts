@@ -75,16 +75,17 @@ export class BrifitParser implements Parser {
          * 14-15 | humidity
          * 16-19 | uptime: seconds since the last reset
          */
-        if (msg.length !== 20 || msg.readUInt8(0) !== 0x15) {
-            return null
+        
+        if (msg.length == 20) {
+            return {
+                buttonPressed: msg.readUInt8(3) === 128,
+                batteryPercentage: (msg.readUInt16LE(10) / 3400) * 100,
+                temperatureCelsius: msg.readInt16LE(12) / 16,
+                humidityPercentage: msg.readInt16LE(14) / 16,
+                uptime: msg.readUInt32LE(16),
+            }
         }
-
-        return {
-            buttonPressed: msg.readUInt8(3) === 128,
-            batteryPercentage: (msg.readUInt16LE(10) / 3400) * 100,
-            temperatureCelsius: msg.readInt16LE(12) / 16,
-            humidityPercentage: msg.readInt16LE(14) / 16,
-            uptime: msg.readUInt32LE(16),
-        }
+        
+        return null
     }
 }
