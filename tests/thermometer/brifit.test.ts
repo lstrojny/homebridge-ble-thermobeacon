@@ -79,12 +79,19 @@ describe('Test Brifit parser', () => {
         expect(brifitParser.parse(Buffer.from([]))).toBe(null)
     })
 
-    test('Parser will return null if unexpected first byte', () => {
-        expect(brifitParser.parse(Buffer.from(new Array(20)))).toBe(null)
-    })
-
     test('Parser will parse temperature, humidity and so on', () => {
         const msg = hexStrToBuffer('15 00 00 80 62 00 00 00 92 d6 ca 0b 4c 01 e4 02 64 f6 03 00')
+        expect(brifitParser.parse(msg)).toEqual({
+            buttonPressed: true,
+            batteryPercentage: 88.76470588235294,
+            humidityPercentage: 46.25,
+            temperatureCelsius: 20.75,
+            uptime: 259684,
+        })
+    })
+
+    test('Parser ignores prefix', () => {
+        const msg = hexStrToBuffer('18 00 00 80 62 00 00 00 92 d6 ca 0b 4c 01 e4 02 64 f6 03 00')
         expect(brifitParser.parse(msg)).toEqual({
             buttonPressed: true,
             batteryPercentage: 88.76470588235294,
