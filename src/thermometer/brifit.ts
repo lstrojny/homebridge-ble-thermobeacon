@@ -75,7 +75,7 @@ export class BrifitParser implements Parser {
          * 14-15 | humidity
          * 16-19 | uptime: seconds since the last reset
          */
-        if (msg.length !== 20 || msg.readUInt8(0) !== 0x15) {
+        if (msg.length !== 20) {
             return null
         }
 
