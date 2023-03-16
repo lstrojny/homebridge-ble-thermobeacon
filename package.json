@@ -72,7 +72,7 @@
         "rimraf": "^4.0.4",
         "ts-jest": "^29.0.3",
         "ts-node": "^10.3.0",
-        "typescript": "^4.4.4"
+        "typescript": "^5.0.2"
     },
     "types": "./dist/src/index.d.ts",
     "homepage": "https://github.com/lstrojny/homebridge-ble-thermobeacon#readme",
