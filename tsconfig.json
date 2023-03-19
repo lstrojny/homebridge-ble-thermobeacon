@@ -9,7 +9,7 @@
         "outDir": "./dist",
         "rootDir": "./",
         "strict": true,
-        "importsNotUsedAsValues": "error",
+        "verbatimModuleSyntax": false,
         "noImplicitAny": true,
         "resolveJsonModule": true,
         "tsBuildInfoFile": ".tsbuildinfo",
