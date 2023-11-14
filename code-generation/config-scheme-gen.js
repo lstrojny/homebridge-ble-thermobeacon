@@ -97,7 +97,7 @@ const file = join(__dirname, '../src/generated/config_boundary.ts')
 
 console.log(`Starting code generation for ${file}`)
 
-const zodSchema = parseSchema(schema, false)
+const zodSchema = parseSchema(schema)
 
 format(
     `
