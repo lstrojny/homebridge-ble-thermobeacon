@@ -8,7 +8,10 @@ export function debugHandlers(handlers: ThermometerHandler[], logger: Logger): T
 }
 
 export class ThermometerDebugger implements ThermometerHandler {
-    public constructor(private readonly handler: ThermometerHandler, private readonly logger: Logger) {}
+    public constructor(
+        private readonly handler: ThermometerHandler,
+        private readonly logger: Logger,
+    ) {}
 
     public getName(): string {
         return `HandlerDebugger(${this.handler.getName()})`
@@ -42,7 +45,10 @@ export function createParserDebugger(logger: Logger): (createParser: () => Parse
 }
 
 export class ParserDebugger implements Parser {
-    constructor(private readonly parser: Parser, private readonly logger: Logger) {}
+    constructor(
+        private readonly parser: Parser,
+        private readonly logger: Logger,
+    ) {}
 
     public getName(): string {
         return `ParserDebugger(${this.parser.getName()})`

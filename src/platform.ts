@@ -21,7 +21,11 @@ export class BleThermoBeaconPlatform implements DynamicPlatformPlugin {
     public readonly accessories: PlatformAccessory[] = []
     private readonly config: Config | null = null
 
-    public constructor(public readonly log: Logger, readonly platformConfig: PlatformConfig, public readonly api: API) {
+    public constructor(
+        public readonly log: Logger,
+        readonly platformConfig: PlatformConfig,
+        public readonly api: API,
+    ) {
         this.log.debug('Finished initializing platform:', platformConfig.name)
 
         try {
