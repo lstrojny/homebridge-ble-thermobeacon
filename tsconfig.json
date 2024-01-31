@@ -15,8 +15,8 @@
         "tsBuildInfoFile": ".tsbuildinfo",
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
-        "incremental": true
+        "incremental": true,
     },
     "include": ["src/", "tests/", "bin/"],
-    "exclude": []
+    "exclude": [],
 }
